@@ -1,7 +1,8 @@
+
 /*
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 软件名：悦看点
-下载链接：https://yuekandian.yichengw.cn/download?app=1&referrer=465331
+下载链接：https://yuekandian.yichengw.cn/download?app=1
 【REWRITE】
 匹配链接 https://yuekandian.yichengw.cn/api/v1/reward/coin?
 对应重写目标 https://raw.fastgit.org/byxiaopeng/myscripts/main/ykd.js
@@ -28,8 +29,6 @@ let tz = ($.getval('tz') || '1');
 let arr = [1, 2, 3, 4];
 let cgarr = [1, 2, 3, 4, 5, 6, 7];
 let host=`https://yuekandian.yichengw.cn`
-let coinRecord = [];
-let cgFlag = 0
 $.message = ''
 
 !(async() => {
@@ -47,8 +46,8 @@ $.message = ''
         if (ykdhdArr[i]) {
             ykdhd = ykdhdArr[i];
             $.index = i + 1;
-            console.log(`\n【 悦看点 账号${$.index} 】`)
-            await videoAward() 
+            console.log(`\n【悦看点 账号${$.index} 】`)
+            await sign() 
         }
       }
     } else {
@@ -68,12 +67,12 @@ $.message = ''
         $.message = ""
         ykdhd = ykdhdArr[k]
         $.index = k + 1;
-        console.log(`\n【 悦看点 账号${$.index} 】`)
+        console.log(`\n【悦看点 账号${$.index} 】`)
         await sign() 
       }
     }
   }
-  //message()
+  message()
 })()
   .catch ((e) => $.logErr(e))
   .finally(() => $.done())
@@ -101,17 +100,18 @@ function profile(timeout = 0) {
             try {
                 result = JSON.parse(data)
                 if (result.code == 0) {
-                    $.log(`\n【吊毛作者欢迎用户】：${result.result.nickname}`)
-                    $.log(`\n【当前账户金币】：${result.result.point}`)
-                    $.log(`\n【提现券】：${result.result.ticket}`)
-                    $.log(`\n【手机碎片】：${result.result.fragment}`)
-                    $.log(`\n【账户邀请码】：${result.result.pin}`)
-                    $.log(`\n【今日收益金币】：${result.result.today_point}`)
+                    $.message += `\n【10.22】：修复自动提现增加闯关换手机`
+                    $.message += `\n【欢迎吊毛用户】：${result.result.nickname}`
+                    $.message += `\n【当前账户金币】：${result.result.point}`
+                    $.message += `\n【提现券】：${result.result.ticket}`
+                    $.message += `\n【手机碎片】：${result.result.fragment}`
+                    $.message += `\n【账户邀请码】：${result.result.pin}`
+                    $.message += `\n【今日收益金币】：${result.result['today_point']}`
                 } else {
                     $.log(`\n您操作太快了~`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -133,24 +133,38 @@ function sign(timeout = 0) {
                     $.log(`\n【签到状态】：${result.result.message}`)
                     $.log(`\n【签到获得金币】：${result.result.coin}`)
                     $.log(`\n【签到获得提现券】：${result.result.coupon}`)
-                } 
-                await coinInfo()
-                await $.wait(2000)
-                await video()
-				await $.wait(2000)
-                await lottery()
-                await $.wait(2000)
-                await news()  //刷新闻
-                await $.wait(2000)
-                await short()  //刷小视频
-                await $.wait(5000)
-                await allbarrier(cgarr) //闯关
-                await $.wait(5000)
-                await profile()
-                await $.wait(5000)
-                await exchange() //开始提现
+                    await $.wait(2000)
+                    await allcoin(arr) //首页气泡
+                    await $.wait(2000)
+                    for (let p = 0; p < 10; p++) {
+                        $.index = p + 1
+                        $.log(`\n【开始第${p + 1}个看视频任务】`)
+                        await video()
+                        await $.wait(10000)
+                    }
+                    for (let t = 0; t < 10; t++) {
+                        $.index = t + 1
+                        $.log(`\n【开始第${t + 1}次抽奖】`)
+                        await lottery()
+                        await $.wait(20000)
+                    }
+                    await $.wait(2000)
+                    await news()  //刷新闻
+                    await $.wait(2000)
+                    await short()  //刷小视频
+                    await $.wait(5000)
+                    await allbarrier(cgarr) //闯关
+                    await $.wait(5000)
+                    await profile()
+                    await $.wait(5000)
+                    await exchange() //开始提现
+                } else {
+                    $.log(`\n【签到状态】：${result.message}`)
+                    await $.wait(2000)
+                    await allcoin(arr)
+                }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -158,8 +172,6 @@ function sign(timeout = 0) {
         }, timeout)
     })
 }
-
-
 //查询是否符合提现要求
 function exchange(timeout = 0) {
     return new Promise((resolve) => {
@@ -171,14 +183,13 @@ function exchange(timeout = 0) {
             try {
                 result = JSON.parse(data)
                 if (result.result.items[0]['is_ok'] == 1) {
-                    $.log(`\n【符合提现要求开始提现】`)
+                    $.log(`\n【提现要求】：${result.result.items[0]['tixian_tip']}`)
                     await $.wait(2000)
                     await exchangetx() //开始提现
                 } else {
-                    $.log(`\n【不符合提现要求 去资讯页面观看2分钟】: ${result.result.items[0].tixian_tip}`)
+                    $.log(`\n【不符合提现要求 去资讯页面观看2分钟】`)
                 }
             } catch (e) {
-				console.log(e)
             } finally {
                 resolve()
             }
@@ -199,11 +210,12 @@ function exchangetx(timeout = 0) {
                 if (result.code == 0) {
                     $.log(`\n【提现状态】：${result.result.message}`)
                     $.log(`\n【提现进度】：${result.result.title}`)
+                    $.message += `\n【提现状态】：${result.result.message}`
+                    $.message += `\n【提现进度】：${result.result.title}`
                 } else {
                     $.log(`\n【提现状态】：${result.message}`)
                 }
             } catch (e) {
-				console.log(e)
             } finally {
                 resolve()
             }
@@ -221,18 +233,18 @@ function news(timeout = 0) {
             try {
                 result = JSON.parse(data)
                 if (result.code == 0) {
-                    newstime = result.result.time * 1000
-                    newstck = result.result.ticket
+                    console.log(`【准备开始看资讯】\n`)
+                    newstime1 = result.result.time * 1000
+                    newstck1 = result.result.ticket
                     await interval() //开始记录阅读时间
-					console.log(`【准备开始看资讯】，等待 ${newstime} ms\n`)
-					await $.wait(newstime)
-                    await rewardnews(newstck)
+                    await $.wait(newstime1)
+                    await rewardnews(newstck1)
                 } else {
-                    console.log(`【获取看资讯失败】: ${result.message}`)
+                    console.log(`【获取看资讯失败】`)
 
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -258,7 +270,7 @@ function interval(timeout = 0) {
 
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -284,7 +296,7 @@ function intervalend(timeout = 0) {
 
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -308,19 +320,19 @@ function rewardnews(newstck) {
                         console.log(`【已刷资讯15次】\n`)
                         await intervalend() //结束记录阅读时间
                     } else {
-                        newtime1 = result.result.time * 1000
-                        newstck1 = result.result.ticket
-						console.log(`【看资讯获得金币】：${result.result.reward}\n`)
-                        console.log(`【已刷资讯${result.result['today_count']}次】，等待 ${newtime1} ms`)
-                        await $.wait(newtime1)
-                        await rewardnews(newstck1)
+                        console.log(`【看资讯获得金币】：${result.result.reward}\n`)
+                        console.log(`【已刷资讯${result.result['today_count']}次】`)
+                        newtime2 = result.result.time * 1000
+                        newstck2 = result.result.ticket
+                        await $.wait(newtime2)
+                        await rewardnews(newstck2)
                     }
                 } else {
                     console.log(`【看资讯失败】：${result.message}\n`)
                 
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -339,16 +351,16 @@ function short(timeout = 0) {
             try {
                 result = JSON.parse(data)
                 if (result.code == 0) {
-                    sptime = result.result.time * 1000
-                    sptck = result.result.ticket
-                    console.log(`【准备开始刷小视频】，等待 ${sptime} ms\n`)
-                    await $.wait(sptime)
-                    await spvideo(sptck)
+                    sptime1 = result.result.time * 1000
+                    sptck1 = result.result.ticket
+                    console.log(`【准备开始刷小视频】\n`)
+                    await $.wait(sptime1)
+                    await spvideo(sptck1)
                 } else {
                     console.log(`【刷视频任务获取失败】：${result.message}\n`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -371,44 +383,18 @@ function spvideo(sptck) {
                     if (result.result['today_count'] >= 15) {
                         console.log(`【已刷视频15次】`)
                     } else {
-                        sptime = result.result.time * 1000
-                        sptck = result.result.ticket
-						console.log(`【刷视频获得金币】：${result.result.reward}\n`)
-                        console.log(`【已刷视频${result.result['today_count']}次】，等待 ${sptime} ms`)
-                        await $.wait(sptime)
-                        await spvideo(sptck)
+                        console.log(`【刷视频获得金币】：${result.result.reward}\n`)
+                        console.log(`【已刷视频${result.result['today_count']}次】`)
+                        sptime2 = result.result.time * 1000
+                        sptck2 = result.result.ticket
+                        await $.wait(sptime2)
+                        await spvideo(sptck2)
                     }
                 } else {
                     console.log(`【刷视频失败】：${result.message}\n`)
                 }
             } catch (e) {
-				console.log(e)
-            } finally {
 
-                resolve()
-            }
-        }, 0)
-    })
-}
-
-//首页金币查询
-function coinInfo() {
-    return new Promise((resolve) => {
-        let url = {
-            url: `${host}/api/v1/reward/coin?`,
-            headers: JSON.parse(ykdhd)
-        }
-        $.get(url, async (err, resp, data) => {
-            try {
-                result = JSON.parse(data)
-				if (result.code == 0) {
-					await $.wait(2000)
-					await getAllCoin(result.result.coins)
-				}else{
-					$.log(`\n查询首页金币失败: ${result.message}`)
-				}
-            } catch (e) {
-				console.log(e)
             } finally {
 
                 resolve()
@@ -417,23 +403,46 @@ function coinInfo() {
     })
 }
 //首页金币 4次
-async function getAllCoin(coins) {
-    for (coinItem of coins) {
-		if(coinItem.num != '0'){
-			if (coinItem.ad == '1' || coinItem.ad == 1) {
-				await $.wait(500)
-				await placement14() //开始气泡广告
-				await $.wait(500)
-				await coinlq(coinItem.id)  //获得气泡奖励
-			} else {
-				await $.wait(500)
-				await coinlq(coinItem.id)
-			}
-		}else{
-			$.log(`\n金币气泡ID[${coinItem.id}]: 数量[${coinItem.num}]，不领取`)
-		}
-		await $.wait(500)
+async function allcoin(Array) {
+    for (const i of Array) {
+        await coin(i)
+        await $.wait(5000)
     }
+}
+//首页金币
+function coin(qpnum) {
+    return new Promise((resolve) => {
+        let url = {
+            url: `${host}/api/v1/reward/coin?`,
+            headers: JSON.parse(ykdhd),
+        }
+        $.get(url, async (err, resp, data) => {
+            try {
+                result = JSON.parse(data)
+                if (result.code == 0) {
+                    i = qpnum - 1
+                    if (result.result.coins[i].num > 0) {
+                        if (result.result.coins[i].ad == 1) {
+                            await $.wait(2000)
+                            await placement14() //开始气泡广告
+                            await $.wait(2000)
+                            await coinlq(qpnum)  //获得气泡奖励
+                        } else {
+                            await $.wait(2000)
+                            await coinlq(qpnum)
+                        }
+                    }
+                } else {
+                    $.log(`\n获取气泡资料失败~`)
+                }
+            } catch (e) {
+
+            } finally {
+
+                resolve()
+            }
+        }, 0)
+    })
 }
 
 //开始气泡广告
@@ -447,14 +456,14 @@ function placement14(timeout = 0) {
             try {
                 result = JSON.parse(data)
                 if (result.code == 0) {
-                    $.log(`\n开始执行广告`)
+                    $.log(`\n开始执行气泡广告`)
                     await $.wait(20000)
                     await log14() //结束气泡广告
                 } else {
-                    $.log(`\n领取金币失败: ${result.message}`)
+                    $.log(`\n开始执行气泡广告失败`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -478,7 +487,7 @@ function log14(timeout = 0) {
                     $.log(`\n执行气泡广告完成`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -513,13 +522,6 @@ function coinlq(num) {
     })
 }
 
-//视频金币 10次
-async function allvideo(Array) {
-    for (const i of Array) {
-        await $.wait(5000)
-        await video()
-    }
-}
 //视频任务
 function video(timeout = 0) {
     return new Promise((resolve) => {
@@ -535,17 +537,13 @@ function video(timeout = 0) {
                     $.log(`\n任务名称：${result.result.tip}`)
                     $.log(`\n获得金币：${result.result.coin}`)
                     $.log(`\n获得提现券：${result.result.coupon}`)
-					if(result.result.coin == '0' && result.result.coupon == '0'){
-						$.log(`\n没有收益，跳过`)
-					}else{
-						await $.wait(37000)
-						await ticket(tick)
-					}
+                    await $.wait(37000)
+                    await ticket(tick)
                 } else {
-                    $.log(`\n视频任务失败: ${result.message}`)
+                    $.log(`\n您操作太快了~`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -567,10 +565,10 @@ function ticket(num) {
                     await $.wait(2000)
                     await coupon()
                 } else {
-                    $.log(`\n观看广告失败: ${result.message}`)
+                    $.log(`\n观看广告失败`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -593,10 +591,10 @@ function coupon(timeout = 0) {
                     $.log(`\n执行下个视频任务时间：${time}毫秒`)
                     await $.wait(time)
                 } else {
-                    $.log(`\n获取时间失败: ${result.message}`)
+                    $.log(`\n获取时间失败`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -620,10 +618,10 @@ function lottery(timeout = 0) {
                     await $.wait(200)
                     await lotterycj(lotteryid)
                 } else {
-                    $.log(`\n没有获取到抽奖参数: ${result.message}`)
+                    $.log(`\n没有获取到抽奖参数`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -645,10 +643,10 @@ function lotterycj(num) {
                 if (result.code == 0) {
                     $.log(`\n抽奖成功`)
                 } else {
-                    $.log(`\n抽奖失败: ${result.message}`)
+                    $.log(`\n抽奖失败`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -670,10 +668,10 @@ function done(timeout = 0) {
                 if (result.code == 0) {
                     $.log(`\n获得金币：${result.result.coin}`)
                 } else {
-                    $.log(`\n领取失败: ${result.message}`)
+                    $.log(`\n领取失败`)
                 }
             } catch (e) {
-				console.log(e)
+
             } finally {
 
                 resolve()
@@ -682,40 +680,11 @@ function done(timeout = 0) {
     })
 }
 
-//10次视频奖励领取
-function videoAward(timeout = 0) {
-    return new Promise((resolve) => {
-        let url = {
-            url: `${host}/api/v1/zhuan/done?`,
-            headers: JSON.parse(ykdhd),
-            body: `id=7&`,
-        }
-        $.post(url, async (err, resp, data) => {
-            try {
-                result = JSON.parse(data)
-                if (result.code == 0) {
-                    $.log(`\n10次视频奖励领取获得金币：${result.result.coin}`)
-                } else {
-                    $.log(`\n10次视频奖励领取失败: ${result.message}`)
-                }
-            } catch (e) {
-				console.log(e)
-            } finally {
-
-                resolve()
-            }
-        }, timeout)
-    })
-}
 
 //闯关7次
 async function allbarrier(Array) {
     for (const i of Array) {
         await barrier(i)
-		if($.cgFlag == 1){
-			$.log(`\n闯关任务已完成7关，跳过`)
-			break;
-		}
         await $.wait(5000)
     }
 }
@@ -729,9 +698,8 @@ function barrier(num) {
         $.get(url, async (err, resp, data) => {
             try {
                 result = JSON.parse(data)
-                if (result.result['current_barrier'] == 7 || result.result['current_barrier'] == '7') {
-                    $.log(`\n闯关任务已完成7关`)
-					$.cgFlag = 1
+                if (result.result['current_barrier'] == 7) {
+                    $.log(`\n闯关任务亿完成7关`)
                 } else {
                     $.log(`\n开始闯关任务`)
                     await $.wait(5000)
@@ -775,7 +743,6 @@ function barrierlq(num) {
 //https://yuekandian.yichengw.cn/api/v1/reward/help/click?
 //https://yuekandian.yichengw.cn/api/v1/ad/log?ticket=xxx&type=5&
 //https://yuekandian.yichengw.cn/api/v1/reward/help/index?
-
 function message() {
     if (tz == 1) { $.msg($.name, "", $.message) }
 }
