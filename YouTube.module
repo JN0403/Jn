@@ -1,21 +1,21 @@
 url_rewrites:
   - match:  (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)
-    location: $1$2$3
+    location: $l1$2$3
     status_code: 302
   - match: ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad
-    location: http://REJECT
+    location: REJECT
     status_code: 302
   - match: ^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v\d\/player\/ad_break
-    location: http://REJECT
+    location: REJECT
     status_code: 302
   - match: ^https?:\/\/(www|s)\.youtube\.com\/api\/stats\/ads
-    location: http://REJECT
+    location: REJECT
     status_code: 302
   - match: ^https?:\/\/(www|s)\.youtube\.com\/(pagead|ptracking)
-    location: http://REJECT
+    location: REJECT
     status_code: 302
   - match: ^https?:\/\/s\.youtube\.com\/api\/stats\/qoe\?adcontext
-    location: http://REJECT
+    location: REJECT
     status_code: 302
 mitm:
   - -redirector*.googlevideo.com
