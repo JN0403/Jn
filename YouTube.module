@@ -20,8 +20,8 @@ url_rewrites:
     location: http://reject
     status_code: 307
 mitm:
-  - '-redirector*.googlevideo.com'
-  - '*.googlevideo.com'
+  - -redirector*.googlevideo.com
+  - *.googlevideo.com
   - www.youtube.com
   - s.youtube.com
   - youtubei.googleapis.com
