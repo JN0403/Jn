@@ -1,9 +1,9 @@
 url_rewrites:
-  - match: >-
+  - match: 
       (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)
     location: $1$2$3
     status_code: 307
-  - match: >-
+  - match: 
       ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad
     location: http://reject
     status_code: 307
