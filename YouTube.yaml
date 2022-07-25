@@ -1,10 +1,8 @@
 url_rewrites:
-  - match: >-
-      (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)
+  - match:  (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)
     location: $1$2$3
     status_code: 307
-  - match: >-
-      ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad
+  - match: ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad
     location: http://reject
     status_code: 307
   - match: ^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v\d\/player\/ad_break
